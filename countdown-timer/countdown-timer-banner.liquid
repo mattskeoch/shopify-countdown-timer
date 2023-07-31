@@ -1,0 +1,228 @@
+{% if section.settings.timer %}
+  <div class="countdown-timer--wrapper">
+    <a href="{{ section.settings.url }}" class="countdown-timer--url">
+      <div class="countdown-timer--container">
+        <div class="countdown-timer--left">
+          <span class="countdown-timer--left--second-text">{{ section.settings.second_text }}</span>
+          <span class="countdown-timer--left--first-text">{{ section.settings.first_text }}</span>
+        </div>
+        <div class="countdown-timer--right">
+          <span>{{ section.settings.third_text }}</span>
+          <div class="countdown-timer">
+            <div>
+              <p>Days</p>
+              <span class="countdown-timer--day">00</span>
+            </div>
+            <div>
+              <p>Hours</p>
+              <span class="countdown-timer--hour">00</span>
+            </div>
+            <div>
+              <p>Minutes</p>
+              <span class="countdown-timer--minute">00</span>
+            </div>
+            <div>
+              <p>Seconds</p>
+              <span class="countdown-timer--second">00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .countdown-timer--wrapper {
+      background: #212121;
+      padding: 10px;
+  }
+
+  a.countdown-timer--url {
+      text-decoration: none;
+  }
+
+  .countdown-timer--container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      color: #fff;
+      padding: 5px 0em;
+  }
+
+  .countdown-timer--container>div {
+      /*  flex: 1; */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+  }
+
+  .countdown-timer--right {
+      text-align: right;
+  }
+
+  .countdown-timer--container>div span {
+      font-size: 15px;
+      text-transform: uppercase;
+      color: #eeeeee;
+      line-height: 15px;
+  }
+
+  .countdown-timer--container .countdown-timer--left--first-text {
+      font-size: 24px;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #fff;
+      line-height: 28px;
+  }
+
+  .countdown-timer--container .countdown-timer--left--second-text {
+      font-size: 16px;
+      text-transform: uppercase;
+      font-weight: 500;
+      line-height: 18px;
+      letter-spacing: 0.04em;
+      color: #eee;
+  }
+
+  .countdown-timer {
+     display: flex;
+     margin-top: 0px !important;
+  }
+
+  .countdown-timer >  div {
+    display: inline;
+  }
+
+  .countdown-timer > div > p {
+    margin-bottom: 0px;
+    text-align: left;
+    font-size: 0.5rem;
+  }
+
+  .countdown-timer > div > span {
+      border-radius: 2px;
+  }
+
+   .countdown-timer--day, .countdown-timer--hour, .countdown-timer--minute, .countdown-timer--second {
+      background: rgb(156,0,0);
+      background: linear-gradient(180deg, rgba(156,0,0,1) 0%, rgba(200,1,1,1) 35%, rgba(156,0,0,1) 100%);
+      border-radius: 4px !important;
+      margin-right: 0.2rem !important;
+      padding: 2px 4px !important;
+      font-size: 20px !important;
+      text-transform: uppercase !important;
+      line-height: 24px !important;
+      color: #fffff;
+      font-weight: 800;
+  }
+
+  .countdown-timer--second {
+      margin-right: 0rem !important;
+    }
+
+  @media screen and (max-width: 767px){
+      .countdown-timer--container .countdown-timer--left--first-text {
+        font-size: 16px !important;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: #ffffff;
+        line-height: 18px;
+        margin-top: 6px;
+      }
+
+      .countdown-timer--container .countdown-timer--left--second-text {
+        font-size: 12px !important;
+        text-transform: uppercase;
+        font-weight: 500;
+        line-height: 14px;
+        letter-spacing: 1.1;
+        color: #eee;
+      }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+    "name": "Countdown Timer Banner",
+    "tag": "section",
+    "settings": [
+        {
+            "type": "text",
+            "id": "first_text",
+            "label": "First Text (Top left)",
+            "default": "Deal of the Week!"
+        },
+        {
+            "type": "text",
+            "id": "second_text",
+            "label": "Second Text (Bottom left)",
+            "default": "Wednesday at 6pm(AWST)"
+        },
+        {
+            "type": "text",
+            "id": "third_text",
+            "label": "Third Text (Top Right)",
+            "default": "Offers ends in"
+        },
+        {
+            "type": "text",
+            "id": "url",
+            "label": "URL",
+            "default": "#"
+        },
+        {
+            "type": "text",
+            "id": "timer",
+            "label": "Date and time to countdown",
+            "placeholder": "MM/DD/YYYY HH:mm"
+        }
+    ],
+    "presets": [
+        {
+            "name": "Countdown Timer Banner",
+            "category": "Banners"
+        }
+    ]
+}
+{% endschema %}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      (function initCountdownTimer() {
+        var countdown_timer = '{{ section.settings.timer }}';
+        if (!countdown_timer) return null;
+
+        var finalDate_timer = countdown_timer.split(' ')[0].split('/');
+        var finalTime_timer = countdown_timer.split(' ')[1].split(':');
+        var finalDate_js = new Date(finalDate_timer[2], finalDate_timer[0]-1, finalDate_timer[1], finalTime_timer[0], finalTime_timer[1]);
+        if (!finalDate_js) return null;
+
+        var interval = setInterval(function() {
+          var remaining_time = (finalDate_js.getTime() - new Date().getTime()) / 1000;
+
+          if (remaining_time < 0) {
+            document.querySelector('.countdown-timer--wrapper').style.display = "none";
+            clearInterval(interval);
+            return;
+          }
+
+          var objTime = {
+            days: Math.floor(((remaining_time % 31536000) % 2628000) / 86400),
+            hours: Math.floor((remaining_time % (3600 * 24)) / 3600),
+            minutes: Math.floor((remaining_time % 3600) / 60),
+            seconds: Math.floor(remaining_time % 60)
+          };
+
+          document.querySelector('.countdown-timer--day').innerHTML = (objTime.days < 10) ? '0' + objTime.days : objTime.days;
+          document.querySelector('.countdown-timer--hour').innerHTML = (objTime.hours < 10) ? '0' + objTime.hours : objTime.hours;
+          document.querySelector('.countdown-timer--minute').innerHTML = (objTime.minutes < 10) ? '0' + objTime.minutes : objTime.minutes;
+          document.querySelector('.countdown-timer--second').innerHTML = (objTime.seconds < 10) ? '0' + objTime.seconds : objTime.seconds;
+
+          remaining_time -= 1;
+        }, 1000);
+      })();
+    });
+</script>
