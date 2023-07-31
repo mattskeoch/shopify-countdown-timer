@@ -193,24 +193,27 @@
 {% endschema %}
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('DOMContentLoaded', () => {
     (function initCountdownTimer() {
-      var countdown_timer = '{{ section.settings.timer }}';
+      const countdown_timer = '{{ section.settings.timer }}';
+
       if (!countdown_timer) return null;
 
-      var finalDate_timer = countdown_timer.split(' ')[0].split('/');
-      var finalTime_timer = countdown_timer.split(' ')[1].split(':');
-      var finalDate_js = new Date(
+      const finalDate_timer = countdown_timer.split(' ')[0].split('/');
+      const finalTime_timer = countdown_timer.split(' ')[1].split(':');
+
+      const finalDate_js = new Date(
         finalDate_timer[2],
         finalDate_timer[0] - 1,
         finalDate_timer[1],
         finalTime_timer[0],
         finalTime_timer[1]
       );
+
       if (!finalDate_js) return null;
 
-      var interval = setInterval(function () {
-        var remaining_time = (finalDate_js.getTime() - new Date().getTime()) / 1000;
+      let interval = setInterval(() => {
+        const remaining_time = (finalDate_js.getTime() - new Date().getTime()) / 1000;
 
         if (remaining_time < 0) {
           document.querySelector('.countdown-timer--wrapper').style.display = 'none';
@@ -218,7 +221,7 @@
           return;
         }
 
-        var objTime = {
+        const objTime = {
           days: Math.floor(((remaining_time % 31536000) % 2628000) / 86400),
           hours: Math.floor((remaining_time % (3600 * 24)) / 3600),
           minutes: Math.floor((remaining_time % 3600) / 60),
