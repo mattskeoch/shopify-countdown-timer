@@ -193,34 +193,44 @@
 {% endschema %}
 
 <script>
+  // When the DOM is fully loaded, execute the function inside the event listener.
   document.addEventListener('DOMContentLoaded', () => {
     (function initCountdownTimer() {
+      // Get the countdown timer value from the section settings in the Liquid template.
       const countdown_timer = '{{ section.settings.timer }}';
 
+      // If the countdown_timer is not provided or empty, return and do nothing.
       if (!countdown_timer) return null;
 
+      // Split the countdown_timer into date and time parts.
       const finalDate_timer = countdown_timer.split(' ')[0].split('/');
       const finalTime_timer = countdown_timer.split(' ')[1].split(':');
 
+      // Create a JavaScript Date object based on the final date and time.
       const finalDate_js = new Date(
-        finalDate_timer[2],
-        finalDate_timer[0] - 1,
-        finalDate_timer[1],
-        finalTime_timer[0],
-        finalTime_timer[1]
+        finalDate_timer[2], // Year
+        finalDate_timer[0] - 1, // Month (Note: JavaScript months are 0-indexed)
+        finalDate_timer[1], // Day
+        finalTime_timer[0], // Hour
+        finalTime_timer[1] // Minute
       );
 
+      // If the finalDate_js is invalid or NaN, return and do nothing.
       if (!finalDate_js) return null;
 
+      // Set up an interval to update the countdown timer every second.
       let interval = setInterval(() => {
+        // Calculate the remaining time in seconds until the final date and time.
         const remaining_time = (finalDate_js.getTime() - new Date().getTime()) / 1000;
 
+        // If the remaining time is negative (i.e., the countdown has ended), hide the countdown timer and clear the interval.
         if (remaining_time < 0) {
           document.querySelector('.countdown-timer--wrapper').style.display = 'none';
           clearInterval(interval);
           return;
         }
 
+        // Calculate the number of days, hours, minutes, and seconds from the remaining time.
         const objTime = {
           days: Math.floor(((remaining_time % 31536000) % 2628000) / 86400),
           hours: Math.floor((remaining_time % (3600 * 24)) / 3600),
@@ -228,6 +238,7 @@
           seconds: Math.floor(remaining_time % 60),
         };
 
+        // Update the HTML elements with the calculated time values.
         document.querySelector('.countdown-timer--day').innerHTML =
           objTime.days < 10 ? '0' + objTime.days : objTime.days;
         document.querySelector('.countdown-timer--hour').innerHTML =
@@ -237,8 +248,9 @@
         document.querySelector('.countdown-timer--second').innerHTML =
           objTime.seconds < 10 ? '0' + objTime.seconds : objTime.seconds;
 
+        // Decrease the remaining_time by 1 second to keep the countdown updated.
         remaining_time -= 1;
-      }, 1000);
+      }, 1000); // The interval is set to 1000 milliseconds (1 second).
     })();
   });
 </script>
